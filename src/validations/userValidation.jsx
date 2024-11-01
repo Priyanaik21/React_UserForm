@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 const userValidation = Yup.object({
-  userName: Yup.string()
+  username: Yup.string()
     .required('User Name is required')
     .matches(/^\S+$/, 'User Name cannot contain spaces'),
   firstName: Yup.string()
