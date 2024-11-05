@@ -1,58 +1,33 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  flexRender
-} from '@tanstack/react-table';
-import {
-  Box,
-  Spinner,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Center,
-  Text,
-  HStack
-} from '@chakra-ui/react';
+import { useReactTable, getCoreRowModel, getPaginationRowModel, flexRender } from '@tanstack/react-table';
+import { Box, Spinner, Table, Thead, Tbody, Tr, Th, Td, Button, Center, Text, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 
 const columns = [
-  {
-    accessorKey: 'id',
-    header: 'ID',
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-  },
-  {
-    accessorKey: 'firstName',
-    header: 'First Name',
-  },
-  {
-    accessorKey: 'lastName',
-    header: 'Last Name',
-  },
-  {
-    accessorKey: 'username',
-    header: 'Username',
-  },
+  { accessorKey: 'id', header: 'ID' },
+  { accessorKey: 'email', header: 'Email' },
+  { accessorKey: 'firstName', header: 'First Name' },
+  { accessorKey: 'lastName', header: 'Last Name' },
+  { accessorKey: 'username', header: 'Username' },
 ];
 
+const fetchUsers = async ({ page, pageSize }) => {
+  const url = new URL('https://67239909493fac3cf24b9322.mockapi.io/user/users');
+  url.searchParams.append('page', page);
+  url.searchParams.append('limit', pageSize);
+  const response = await axios.get(url.toString());
+  return response.data;
+};
+
 const UserGrid = () => {
-    const { data, error, isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      const response = await axios.get('https://67239909493fac3cf24b9322.mockapi.io/user/users');
-      return response.data;
-    },
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['users', page],
+    queryFn: () => fetchUsers({ page, pageSize }),
+    keepPreviousData: true,
   });
 
   const table = useReactTable({
@@ -60,7 +35,9 @@ const UserGrid = () => {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    manualPagination: true,
+    pageCount: -1,
+    state: { pagination: { pageIndex: page - 1, pageSize } },
   });
 
   if (isLoading) {
@@ -97,9 +74,9 @@ const UserGrid = () => {
       </Table>
       <Center mt={4}>
         <HStack spacing={4}>
-          <Button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}> Previous</Button>
-          <Text> Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()} </Text>
-          <Button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} >Next </Button>
+          <Button onClick={() => setPage(prev => Math.max(prev - 1, 1))} disabled={page === 1}>Previous</Button>
+          <Text>Page {page}</Text>
+          <Button onClick={() => setPage(prev => prev + 1)}>Next</Button>
         </HStack>
       </Center>
     </Box>
@@ -107,3 +84,5 @@ const UserGrid = () => {
 };
 
 export default UserGrid;
+
+
