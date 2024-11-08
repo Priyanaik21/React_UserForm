@@ -11,7 +11,7 @@ const HomePage = () => {
       <VStack spacing={6} align="center">
         <Heading color="teal.600" size="s" mb={2}>Welcome to User Management</Heading>
         <Box pt={4}>
-          <Button colorScheme="teal" size="lg" onClick={() => navigate('/add-user')}> Add User</Button>
+          <Button colorPalette="teal" size="lg" onClick={() => navigate('/add-user')}> Add User</Button>
         </Box>
         <UserGrid/>
       </VStack>

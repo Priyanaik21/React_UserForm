@@ -1,5 +1,6 @@
 import React from 'react';
-import { Input, Button, FormErrorMessage, FormControl, Container, Heading, VStack, Text, useToast, HStack } from '@chakra-ui/react';
+import { Input, Button, Container, Heading, VStack, Text, HStack,Fieldset } from '@chakra-ui/react';
+import { Field } from '../components/ui/field';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import userValidation from '../validations/userValidation';
@@ -7,14 +8,14 @@ import UserStore from '../store/store';
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Toaster, toaster } from "../components/ui/toaster"
 
 const UserForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(userValidation),
     mode: 'onChange',
   });
-  const addUser = UserStore((state) => state.addUser);
-  const toast = useToast(); 
+  const addUser = UserStore((state) => state.addUser); 
 
   const navigate = useNavigate();
 
@@ -25,19 +26,19 @@ const UserForm = () => {
     },
     onSuccess: (data) => {
       addUser(data);
-      toast({
+      toaster.create({
         title: "User added successfully.",
         description: "The user has been successfully added to the store.",
-        status: "success",
+        type: "success",
         duration: 2000,
         position: "bottom-right",
       });
     },
     onError: (error) => {
-      toast({
+      toaster.create({
         title: "Error adding user.",
         description: error.response?.data?.message || "An unexpected error occurred.",
-        status: "error",
+        type: "error",
         duration: 2000,
         position: "bottom-right",
       });
@@ -47,57 +48,54 @@ const UserForm = () => {
   const onSubmit = (data) => {
     console.log('User Data:', data);
     mutation.mutate(data);
+    reset();
   };
 
   return (
-    <Container maxW="md" py={8} px={6} borderRadius="md" bg="white" shadow="base">
+    <Container maxW="md" py={9} px={7} borderRadius="md" bg="white" shadow="md" mt={4} >
       <VStack spacing={4} align="stretch">
         <Heading as="h2" size="lg" textAlign="center" color="teal.600">
           Add New User
         </Heading>
-        <Text fontSize="sm" color="gray.600" textAlign="center">
+        <Text fontSize="sm" color="gray.600" textAlign="center" mt={2} mb={2}>
           Please fill the details to create a new user account.
         </Text>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <VStack spacing={4}>
-            <FormControl isInvalid={errors.username}>
-              <Input {...register('username')} placeholder="User Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
-            </FormControl>
+        <Fieldset.Root >
+          <VStack>
+            <Field invalid={errors.username} errorText={errors.username?.message}>
+              <Input {...register('username')} placeholder="User Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} />
+            </Field>
 
-            <FormControl isInvalid={errors.firstName}>
-              <Input {...register('firstName')} placeholder="First Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.firstName?.message}</FormErrorMessage>
-            </FormControl>
+            <Field invalid = {errors.firstName} errorText={errors.firstName?.message}>
+              <Input {...register('firstName')} placeholder="First Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} />
+            </Field>
 
-            <FormControl isInvalid={errors.lastName}>
-              <Input {...register('lastName')} placeholder="Last Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.lastName?.message}</FormErrorMessage>
-            </FormControl>
+            <Field invalid={errors.lastName} errorText={errors.lastName?.message}>
+              <Input {...register('lastName')} placeholder="Last Name" bg="gray.50" _placeholder={{ color: 'gray.400' }} />
+            </Field>
 
-            <FormControl isInvalid={errors.email}>
-              <Input {...register('email')} type="email" placeholder="Email Address" bg="gray.50" _placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-            </FormControl>
+            <Field invalid={errors.email} errorText={errors.email?.message}>
+              <Input {...register('email')} type="email" placeholder="Email Address" bg="gray.50" _placeholder={{ color: 'gray.400' }} />
+            </Field>
 
-            <FormControl isInvalid={errors.password}>
-              <Input {...register('password')} type="password" placeholder="Password" bg="gray.50"_placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-            </FormControl>
+            <Field invalid={errors.password} errorText={errors.password?.message}>
+              <Input {...register('password')} type="password" placeholder="Password" bg="gray.50"_placeholder={{ color: 'gray.400' }} />
+             </Field>
 
-            <FormControl isInvalid={errors.confirmPassword}>
-              <Input {...register('confirmPassword')} type="password" placeholder="Confirm Password" bg="gray.50" _placeholder={{ color: 'gray.400' }} focusBorderColor="teal.400"/>
-              <FormErrorMessage>{errors.confirmPassword?.message}</FormErrorMessage>
-            </FormControl>
-
+            <Field invalid={errors.confirmPassword} errorText={errors.confirmPassword?.message}>
+              <Input {...register('confirmPassword')} type="password" placeholder="Confirm Password" bg="gray.50" _placeholder={{ color: 'gray.400' }} />      
+             </Field>
+             
             <HStack spacing={4} mt={4} align="center" justify="center">
-            <Button colorScheme="teal" type="submit" width="full" size="lg" > Submit</Button>
-            <Button colorScheme="teal" width="full" size="lg" onClick={() => navigate('/')}>Back</Button>
+            <Button colorPalette="teal" type='submit' width="full" size="lg" > Submit</Button>
+            <Button colorPalette="teal" width="full" size="lg" onClick={() => navigate('/')}>Back</Button>
             </HStack>
-
           </VStack>
-        </form>
+        </Fieldset.Root >
+      </form>
       </VStack>
+      <Toaster />
     </Container>
   );
 };
