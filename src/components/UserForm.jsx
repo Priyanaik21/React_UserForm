@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
 import { Input, Button, Container, Heading, VStack, Text, HStack, Fieldset } from '@chakra-ui/react';
 import { Field } from '../components/ui/field';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import userValidation from '../validations/userValidation';
 import UserStore from '../store/store';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchUserById, useCreateUserMutation, useUpdateUserMutation } from '../api/userApi';
+import { useCreateUserMutation, useUpdateUserMutation, useUserDataQuery } from '../api/userApi';
 
 const UserForm = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -20,20 +18,13 @@ const UserForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { data: userData, isLoading, isError } = useQuery({
-    queryKey: ['getUser', id], 
-    queryFn: async () => await fetchUserById(id),
-    enabled: !!id, 
+  const { isLoading, isError } = useUserDataQuery({
+    id,
+    reset,
   });
-
+  
   const createUserMutation = useCreateUserMutation(addUser);
   const updateUserMutation = useUpdateUserMutation(updateUserInStore);
-
-  useEffect(() => {
-    if (userData) {
-      reset(userData);
-    }
-  }, [userData, reset]);
 
   const onSubmit = (data) => {
     console.log('User Data:', data);

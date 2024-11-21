@@ -7,7 +7,6 @@ import { PaginationItems, PaginationNextTrigger, PaginationPrevTrigger, Paginati
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createListCollection } from "@chakra-ui/react"
 
-
 const frameworks = createListCollection({
   items: [
     { label: "5", value: 5 },

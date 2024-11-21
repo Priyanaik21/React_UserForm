@@ -2,12 +2,30 @@ import axios from 'axios';
 import { useMutation } from '@tanstack/react-query';
 import { toaster } from '../components/ui/toaster';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 const URL = 'https://67239909493fac3cf24b9322.mockapi.io/user/users';
 
 export const fetchUserById = async (id) => {
   const response = await axios.get(`${URL}/${id}`);
   return response.data;
+};
+
+export const useUserDataQuery = (props) => {
+  const { onSuccess = () => {}, id, reset } = props;
+
+  const userDataQuery = useQuery({
+    queryKey: ['getUser', id],
+    queryFn: async () => {
+      const response = await fetchUserById(id);
+      onSuccess(response); 
+      reset(response); 
+      return response; 
+    },
+    enabled: !!id, 
+  });
+
+  return userDataQuery;
 };
 
 export const useCreateUserMutation = (addUser) => {
